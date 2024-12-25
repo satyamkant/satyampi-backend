@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: UserMs-Dev
+  config:
+    import: consul://casalocal.com:8500/config/UserMs-Dev
+  cloud:
+    consul:
+      config:
+        enabled: true
+        format: YAML
+      discovery:
+        enabled: true

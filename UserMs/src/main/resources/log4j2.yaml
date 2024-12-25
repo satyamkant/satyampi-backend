@@ -1,0 +1,36 @@
+Configuration:
+  status: WARN
+  name: MyApp
+
+  Appenders:
+    Console:
+      name: Console
+      target: SYSTEM_OUT
+      PatternLayout:
+        pattern: "%d{yyyy-MM-dd HH:mm:ss} [%t] %-5level %logger{36} - %msg%n"
+
+    File:
+      name: File
+      fileName: "logs/application.log"
+      PatternLayout:
+        pattern: "%d{yyyy-MM-dd HH:mm:ss} [%t] %-5level %logger{36} - %msg%n"
+      Policies:
+        TimeBasedTriggeringPolicy:
+          interval: 1
+          modulate: true
+      DefaultRolloverStrategy:
+        max: 30
+
+  Loggers:
+    Root:
+      level: info
+      AppenderRef:
+        - ref: Console
+        - ref: File
+
+    # You can add specific loggers for certain packages
+    Logger:
+      - name: org.springframework.web
+        level: debug
+        AppenderRef:
+          - ref: Console
