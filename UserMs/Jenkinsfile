@@ -31,7 +31,7 @@ pipeline {
                 echo 'Building Docker image...'
                 // Build the Docker image from the Dockerfile
                 script {
-                    dir('Portfolio/backend/UserMs') {
+                    dir('UserMs') {
                         sh 'docker build -t $DOCKER_IMAGE .'
                     }
                 }
