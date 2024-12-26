@@ -10,7 +10,7 @@ pipeline {
             steps {
                 echo 'Cloning repository...'
                 // Pull the latest code from the GitHub repo
-                git url: 'https://github.com/satyamkant/ProjectPi.git', branch: 'main'
+                git url: 'https://github.com/satyamkant/satyampi-backend.git', branch: 'main'
             }
         }
 
@@ -19,7 +19,7 @@ pipeline {
                 echo 'Building Spring Boot application with Maven...'
                 // Run Maven clean and package to build the Spring Boot application
                 script {
-                    dir('Portfolio/backend/UserMs') {
+                    dir('UserMs') {
                         sh 'mvn clean package -X' // clean and package
                     }
                 }
@@ -57,7 +57,7 @@ pipeline {
                 echo 'Cleaning up unused Docker images...'
                 sh 'docker image prune -f'
                 sh 'docker builder prune --all -f'
-                sh 'docker system prune -f --volumes'
+                sh 'docker system prune -f --volumes --filter "until=1h"'
             }
         }
     }

@@ -1,8 +1,8 @@
 spring:
   application:
-    name: UserMs-Dev
+    name: UserMs
   config:
-    import: consul://casalocal.com:8500/config/UserMs-Dev
+    import: consul://consul:8500/config/UserMs
   cloud:
     consul:
       config:
@@ -10,3 +10,6 @@ spring:
         format: YAML
       discovery:
         enabled: true
+        health-check-interval: 60s # Set the interval to 30 seconds
+        health-check-path: /actuator/health # Health check endpoint
+        health-check-timeout: 3s # Timeout for the health check

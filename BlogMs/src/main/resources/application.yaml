@@ -2,10 +2,14 @@ spring:
   application:
     name: BlogMs
   config:
-    import: consul://casalocal.com:8500/BlogMs-Dev/application # Specifies that configuration should be loaded from Consul
+    import: consul://consul:8500/config/BlogMs # Specifies that configuration should be loaded from Consul
   cloud:
     consul:
-      discovery:
-        hostname: host.docker.internal
       config:
-        enabled: true  # Enable Consul configuration management
+        enabled: true
+        format: YAML
+      discovery:
+        enabled: true
+        health-check-interval: 60s # Set the interval to 30 seconds
+        health-check-path: /actuator/health # Health check endpoint
+        health-check-timeout: 3s # Timeout for the health check
