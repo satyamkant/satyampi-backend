@@ -57,7 +57,6 @@ pipeline {
                 echo 'Cleaning up unused Docker images...'
                 sh 'docker image prune -f'
                 sh 'docker builder prune --all -f'
-                sh 'docker system prune -f --volumes --filter "until=1h"'
             }
         }
     }
