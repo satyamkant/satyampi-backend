@@ -62,15 +62,17 @@ public class JwtController {
         response.addCookie(cookie); // Add cookie to response
 
 
-        UserResponseDto userResponseDto = new UserResponseDto();
+
         userDto.setPasswordHash(null);
         userDto.setJwtToken(null);
         userDto.setName(jwtService.getClaimFromJwtToken(jwtToken));
 
-        userResponseDto.setData(userDto);
-        userResponseDto.setMessage("Successfully logged in");
+        ResponseDTO responseDTO = new ResponseDTO();
+        responseDTO.setData(userDto);
+        responseDTO.setMessage("Successfully logged in");
+        responseDTO.setStatus(HttpStatus.OK.toString());
 
-        return new ResponseEntity<>(userResponseDto,HttpStatus.OK);
+        return new ResponseEntity<>(responseDTO,HttpStatus.OK);
     }
 
     @GetMapping("/logout")
@@ -84,11 +86,12 @@ public class JwtController {
         cookie.setMaxAge(0); // Set cookie expiration time (in seconds)
         cookie.setDomain(DOMAIN);
         response.addCookie(cookie); // Add cookie to response
-        UserResponseDto userResponseDto = new UserResponseDto();
+        ResponseDTO responseDTO = new ResponseDTO();
 
-        userResponseDto.setMessage("Successfully Logged out");
+        responseDTO.setMessage("Successfully Logged out");
+        responseDTO.setStatus(HttpStatus.OK.toString());
 
-        return new ResponseEntity<>(userResponseDto,HttpStatus.OK);
+        return new ResponseEntity<>(responseDTO,HttpStatus.OK);
     }
 
     @PostMapping("/register")
@@ -103,7 +106,7 @@ public class JwtController {
         try {
             // Make the REST call
 
-            UserResponseDto userResponseDto = new UserResponseDto();
+            ResponseDTO responseDTO = new ResponseDTO();
 
             restTemplate.exchange(
                     USER_DB_URL_REGISTER_USER,
@@ -114,9 +117,10 @@ public class JwtController {
 
             userDto.setPasswordHash(null);
 
-            userResponseDto.setData(userDto);
-            userResponseDto.setMessage("User registered successfully");
-            return new ResponseEntity<>(userResponseDto, HttpStatus.OK);
+            responseDTO.setData(userDto);
+            responseDTO.setMessage("User registered successfully");
+            responseDTO.setStatus(HttpStatus.OK.toString());
+            return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 
         } catch (HttpClientErrorException | HttpServerErrorException e) {
             // Specific exception handling for HTTP errors
@@ -134,16 +138,19 @@ public class JwtController {
     public ResponseEntity<?> isAuthenticated(HttpServletRequest request) {
         String jwt = jwtService.getJwtFromHeader(request);
         String userName = jwtService.getUserNameFromJwtToken(jwt);
-        UserResponseDto userResponseDto = new UserResponseDto();
-        userResponseDto.setMessage("Authenticated user");
+
+
+
 
         UserDto userDto = new UserDto();
         userDto.setEmail(userName);
         userDto.setName(jwtService.getClaimFromJwtToken(jwt));
 
-        userResponseDto.setData(userDto);
+        ResponseDTO responseDTO = new ResponseDTO();
+        responseDTO.setMessage("Authenticated user");
+        responseDTO.setData(userDto);
 
-        return new  ResponseEntity<>(userResponseDto, HttpStatus.OK);
+        return new  ResponseEntity<>(responseDTO, HttpStatus.OK);
     }
 
     @PostMapping("/blog/saveBlog")

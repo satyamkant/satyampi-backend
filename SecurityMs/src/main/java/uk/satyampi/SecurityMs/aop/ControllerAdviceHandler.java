@@ -7,7 +7,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpClientErrorException;
-import uk.satyampi.SecurityMs.dto.UserResponseDto;
 import uk.satyampi.SecurityMs.exception.SatyamPiLogicalException;
 
 import java.util.HashMap;
