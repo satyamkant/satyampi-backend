@@ -39,7 +39,7 @@ public class LogginAspect {
     // Handle exceptions thrown by UserServiceImpl methods
     @AfterThrowing(pointcut = "blogServiceMethods()", throwing = "exception")
     public void handleUserServiceException(Exception exception) throws SatyamPiLogicalException {
-        logger.error("Exception occurred in blogServiceImpl: {}", exception.getMessage(), exception);
+        logger.error("Exception occurred in blogServiceImpl: {}", exception.getMessage(),exception);
         throw new SatyamPiLogicalException(exception.getMessage(), exception);
     }
 }

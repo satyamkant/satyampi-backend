@@ -46,9 +46,9 @@ public class SecurityConfig {
         return http.csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(request ->request
-                        .requestMatchers("/security/register","/actuator/health","/security/login")
+                        .requestMatchers("/security/register","/actuator/health","/security/login","/security/blog/getBlogByTitle/*")
                         .permitAll()
-                        .requestMatchers(new AntPathRequestMatcher("/security/isAuthenticated"))
+                        .requestMatchers(new AntPathRequestMatcher("/security/isAuthenticated","/security/blog/saveBlog"))
                         .hasAnyRole("ADMIN","AUTHOR", "READER")
                         .anyRequest()
                         .authenticated())

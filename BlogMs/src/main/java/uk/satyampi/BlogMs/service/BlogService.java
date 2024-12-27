@@ -1,11 +1,18 @@
 package uk.satyampi.BlogMs.service;
 
-import uk.satyampi.BlogMs.dto.BlogDTO;
+import uk.satyampi.BlogMs.dto.BlogDataDTO;
+import uk.satyampi.BlogMs.enums.BlogType;
+
+import java.util.List;
 
 public interface BlogService {
-    BlogDTO getBlogByTitle(String blogTitle);
+    BlogDataDTO getBlogByTitle(String blogTitle);
 
-    String saveBlog(BlogDTO blogDTO);
+    String saveBlog(BlogDataDTO blogDataDTO);
 
-    String updateBlog(BlogDTO blogDTO);
+    String updateBlog(BlogDataDTO blogDataDTO);
+
+    List<BlogDataDTO> getAllBlogsByUser(Long id);
+
+    List<BlogDataDTO> getAllBlogsOfType(BlogType type);
 }

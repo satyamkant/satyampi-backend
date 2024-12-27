@@ -1,4 +1,4 @@
-package uk.satyampi.BlogMs.enums;
+package uk.satyampi.SecurityMs.enums;
 
 public enum BlogType {
     CODEFORCES,

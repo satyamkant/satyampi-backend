@@ -23,8 +23,12 @@ public class UserDto implements Serializable {
     @NotNull
     @Pattern(regexp = "^[A-Z][a-z]*(\\s[A-Z][a-z]*)*$", message = "Invalid Name")
     private String name;
+
+    @NotNull
     @Email(message = "Enter a valid Email")
     private String email;
+
+    @NotNull
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,20}$",message = "Enter Valid Password")
     private String passwordHash;
 

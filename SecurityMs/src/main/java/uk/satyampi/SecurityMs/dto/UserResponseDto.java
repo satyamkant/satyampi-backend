@@ -1,9 +1,8 @@
-package uk.satyampi.BlogMs.dto;
+package uk.satyampi.SecurityMs.dto;
 
 import lombok.*;
 
 import java.io.Serializable;
-
 
 @Data
 @Getter
@@ -11,9 +10,8 @@ import java.io.Serializable;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class ResponseDTO implements Serializable {
+public class UserResponseDto implements Serializable {
     private String message;
-    private String status;
     private String error;
-    private Object data;
+    private UserDto data;
 }

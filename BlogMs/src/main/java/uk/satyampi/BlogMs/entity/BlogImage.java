@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import uk.satyampi.BlogMs.dto.BlogImageDTO;
 
 @Entity
 @Table(name = "Blog_Image")
@@ -26,11 +25,6 @@ public class BlogImage {
 
     @Column(name = "Image_Path", nullable = false)
     private String imagePath;
-
-    public void convertToEntity(BlogImageDTO blogImageDTO) {
-        this.imagePath = blogImageDTO.getImagePath();
-        this.blogContent = blogImageDTO.getBlogContent();
-    }
 
     // Getters and Setters
 }

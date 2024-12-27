@@ -12,8 +12,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
-import uk.satyampi.SecurityMs.dto.ResponseDto;
-import uk.satyampi.SecurityMs.dto.UserDto;
+import uk.satyampi.SecurityMs.dto.*;
 import uk.satyampi.SecurityMs.exception.SatyamPiLogicalException;
 import uk.satyampi.SecurityMs.service.JwtService;
 
@@ -26,17 +25,23 @@ public class JwtController {
     private final RestTemplate restTemplate;
     private final JwtService jwtService;
     private final String USER_DB_URL_REGISTER_USER;
+    private final String BLOG_DB_URL_SAVE_BLOG;
+    private final String BLOG_DB_URL_GET_BLOG_BY_TITLE;
     private final long EXPIRATION_TIME;
     private final String DOMAIN;
 
     @Autowired
     public JwtController(RestTemplate restTemplate, JwtService jwtService,
                          @Value("${USER_DB_URL_REGISTER_USER}") String userDbUrlRegisterUser,
+                         @Value("${BLOG_DB_URL_SAVE_BLOG}") String blogDbUrlSaveBlog,
+                         @Value("${BLOG_DB_URL_GET_BLOG_BY_TITLE}") String blogDbUrlGetBlogByTitle,
                          @Value("${EXPIRATION_TIME}") long expirationTime,
                          @Value("${DOMAIN}") String domain) {
         this.restTemplate = restTemplate;
         this.jwtService = jwtService;
         USER_DB_URL_REGISTER_USER = userDbUrlRegisterUser;
+        BLOG_DB_URL_SAVE_BLOG = blogDbUrlSaveBlog;
+        BLOG_DB_URL_GET_BLOG_BY_TITLE = blogDbUrlGetBlogByTitle;
         EXPIRATION_TIME = expirationTime;
         DOMAIN = domain;
     }
@@ -57,15 +62,15 @@ public class JwtController {
         response.addCookie(cookie); // Add cookie to response
 
 
-        ResponseDto responseDto = new ResponseDto();
+        UserResponseDto userResponseDto = new UserResponseDto();
         userDto.setPasswordHash(null);
         userDto.setJwtToken(null);
         userDto.setName(jwtService.getClaimFromJwtToken(jwtToken));
 
-        responseDto.setUserDto(userDto);
-        responseDto.setMessage("Successfully logged in");
+        userResponseDto.setData(userDto);
+        userResponseDto.setMessage("Successfully logged in");
 
-        return new ResponseEntity<>(responseDto,HttpStatus.OK);
+        return new ResponseEntity<>(userResponseDto,HttpStatus.OK);
     }
 
     @GetMapping("/logout")
@@ -79,15 +84,15 @@ public class JwtController {
         cookie.setMaxAge(0); // Set cookie expiration time (in seconds)
         cookie.setDomain(DOMAIN);
         response.addCookie(cookie); // Add cookie to response
-        ResponseDto responseDto = new ResponseDto();
+        UserResponseDto userResponseDto = new UserResponseDto();
 
-        responseDto.setMessage("Successfully Logged out");
+        userResponseDto.setMessage("Successfully Logged out");
 
-        return new ResponseEntity<>(responseDto,HttpStatus.OK);
+        return new ResponseEntity<>(userResponseDto,HttpStatus.OK);
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody @Validated UserDto userDto) throws Exception {
+    public ResponseEntity<?> register(@RequestBody @Validated UserDto userDto) throws SatyamPiLogicalException {
 
         // Set HTTP headers (if needed, e.g., Authorization)
         HttpHeaders headers = new HttpHeaders();
@@ -98,7 +103,7 @@ public class JwtController {
         try {
             // Make the REST call
 
-            ResponseDto responseDto = new ResponseDto();
+            UserResponseDto userResponseDto = new UserResponseDto();
 
             restTemplate.exchange(
                     USER_DB_URL_REGISTER_USER,
@@ -109,9 +114,9 @@ public class JwtController {
 
             userDto.setPasswordHash(null);
 
-            responseDto.setUserDto(userDto);
-            responseDto.setMessage("User registered successfully");
-            return new ResponseEntity<>(responseDto, HttpStatus.OK);
+            userResponseDto.setData(userDto);
+            userResponseDto.setMessage("User registered successfully");
+            return new ResponseEntity<>(userResponseDto, HttpStatus.OK);
 
         } catch (HttpClientErrorException | HttpServerErrorException e) {
             // Specific exception handling for HTTP errors
@@ -129,15 +134,63 @@ public class JwtController {
     public ResponseEntity<?> isAuthenticated(HttpServletRequest request) {
         String jwt = jwtService.getJwtFromHeader(request);
         String userName = jwtService.getUserNameFromJwtToken(jwt);
-        ResponseDto responseDto = new ResponseDto();
-        responseDto.setMessage("Authenticated user");
+        UserResponseDto userResponseDto = new UserResponseDto();
+        userResponseDto.setMessage("Authenticated user");
 
         UserDto userDto = new UserDto();
         userDto.setEmail(userName);
         userDto.setName(jwtService.getClaimFromJwtToken(jwt));
 
-        responseDto.setUserDto(userDto);
+        userResponseDto.setData(userDto);
 
-        return new  ResponseEntity<>(responseDto, HttpStatus.OK);
+        return new  ResponseEntity<>(userResponseDto, HttpStatus.OK);
     }
+
+    @PostMapping("/blog/saveBlog")
+    public ResponseEntity<?> saveBlog(@RequestBody BlogDataDTO blogDataDTO) throws Exception {
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Content-Type", "application/json");
+
+        HttpEntity<BlogDataDTO> requestEntity = new HttpEntity<>(blogDataDTO, headers);
+
+        try {
+            ResponseDTO ResponseDto = restTemplate.exchange(
+                    BLOG_DB_URL_SAVE_BLOG,
+                    HttpMethod.POST,
+                    requestEntity,
+                    ResponseDTO.class
+            ).getBody();
+            return new ResponseEntity<>(ResponseDto, HttpStatus.OK);
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            // Specific exception handling for HTTP errors
+            throw new SatyamPiLogicalException("Http exception",e);
+        } catch (ResourceAccessException e) {
+            // Handle network or connection issues (e.g., service down)
+            throw new SatyamPiLogicalException("Server not available",e);
+        } catch (Exception e) {
+            // General exception handling
+            throw new SatyamPiLogicalException("Internal server error",e);
+        }
+    }
+
+    @GetMapping("/blog/getBlogByTitle/{blogTitle}")
+    public ResponseEntity<?> getBlogByTitle(@PathVariable String blogTitle) throws Exception {
+        String url = BLOG_DB_URL_GET_BLOG_BY_TITLE + "?title=" + blogTitle;
+
+        try {
+            ResponseDTO ResponseDto = restTemplate.getForObject(url, ResponseDTO.class);
+            return new ResponseEntity<>(ResponseDto, HttpStatus.OK);
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            // Specific exception handling for HTTP errors
+            throw new SatyamPiLogicalException("Http exception",e);
+        } catch (ResourceAccessException e) {
+            // Handle network or connection issues (e.g., service down)
+            throw new SatyamPiLogicalException("Server not available",e);
+        } catch (Exception e) {
+            // General exception handling
+            throw new SatyamPiLogicalException("Internal server error",e);
+        }
+
+    }
+
 }

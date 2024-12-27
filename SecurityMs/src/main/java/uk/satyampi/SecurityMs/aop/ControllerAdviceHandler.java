@@ -6,7 +6,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import uk.satyampi.SecurityMs.dto.ResponseDto;
+import org.springframework.web.client.HttpClientErrorException;
+import uk.satyampi.SecurityMs.dto.UserResponseDto;
 import uk.satyampi.SecurityMs.exception.SatyamPiLogicalException;
 
 import java.util.HashMap;
@@ -17,26 +18,18 @@ public class ControllerAdviceHandler {
     @ExceptionHandler(SatyamPiLogicalException.class)
     public ResponseEntity<?> exception(SatyamPiLogicalException e) {
 
-        ResponseDto responseDto = new ResponseDto();
 
-        switch (e.getMessage()){
-            case "Http exception":
-                responseDto.setError("Http exception");
-                responseDto.setMessage(e.getMessage());
-                return new ResponseEntity<>(responseDto, HttpStatus.BAD_REQUEST);
-            case "Server not available":
-                responseDto.setError("Server not available");
-                responseDto.setMessage(e.getMessage());
-                return new ResponseEntity<>(responseDto, HttpStatus.SERVICE_UNAVAILABLE);
-            case "Bad credentials":
-                responseDto.setError("Authentication failed: wrong credentials");
-                responseDto.setMessage(e.getMessage());
-                return new ResponseEntity<>(responseDto,HttpStatus.UNAUTHORIZED);
-            default:
-                responseDto.setError(e.getMessage());
-                responseDto.setMessage(e.getMessage());
-                return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+        return switch (e.getMessage()) {
+            case "Http exception" -> {
+                HttpClientErrorException ex = (HttpClientErrorException) e.getException();
+                String responseBody = ex.getResponseBodyAsString();
+                HttpStatus statusCode = (HttpStatus) ex.getStatusCode();
+                yield new ResponseEntity<>(responseBody,statusCode);
+            }
+            case "Server not available" -> new ResponseEntity<>(e.getMessage(), HttpStatus.SERVICE_UNAVAILABLE);
+            case "Bad credentials" -> new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
+            default -> new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        };
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -59,10 +52,8 @@ public class ControllerAdviceHandler {
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> exception(Exception e) {
-        ResponseDto responseDto = new ResponseDto();
-        responseDto.setError(e.getMessage());
-        responseDto.setMessage(e.getMessage());
-        return new ResponseEntity<>(responseDto, HttpStatus.INTERNAL_SERVER_ERROR);
+
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
 }

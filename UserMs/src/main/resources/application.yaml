@@ -1,8 +1,8 @@
 spring:
   application:
-    name: UserMs
+    name: UserMs-Dev
   config:
-    import: consul://consul:8500/config/UserMs
+    import: consul://casalocal.com:8500/config/UserMs-Dev
   cloud:
     consul:
       config:

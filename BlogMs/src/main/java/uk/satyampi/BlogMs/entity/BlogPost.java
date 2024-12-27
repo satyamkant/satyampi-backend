@@ -5,7 +5,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import uk.satyampi.BlogMs.dto.BlogDTO;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import uk.satyampi.BlogMs.enums.BlogType;
 
 import java.time.LocalDateTime;
@@ -32,11 +33,13 @@ public class BlogPost {
     @Column(name = "Slug", nullable = false, unique = true)
     private String slug;
 
+    @CreationTimestamp
     @Column(name = "Date_Created", nullable = false)
-    private LocalDateTime dateCreated = LocalDateTime.now();
+    private LocalDateTime dateCreated;
 
+    @UpdateTimestamp
     @Column(name = "Date_Updated")
-    private LocalDateTime dateUpdated = LocalDateTime.now();
+    private LocalDateTime dateUpdated;
 
     @Column(name = "Published_Status", nullable = false)
     private boolean publishedStatus;
@@ -44,20 +47,8 @@ public class BlogPost {
     @Column(name = "Author_Id", nullable = false)
     private Long authorId;
 
-    @OneToOne(mappedBy = "blogPost", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(mappedBy = "blogPost", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private BlogContent blogContent;
-
-    public void convertToEntity(BlogDTO blogDTO){
-        blogType = blogDTO.getBlogType();
-        title = blogDTO.getTitle();
-        slug = blogDTO.getSlug();
-        dateUpdated = LocalDateTime.now();;
-        publishedStatus = blogDTO.isPublishedStatus();
-        authorId = blogDTO.getAuthorId();
-
-        blogContent = new BlogContent();
-        blogContent.convertToEntity(blogDTO.getBlogContentDTO());
-    }
 
     // Getters and Setters
 }
