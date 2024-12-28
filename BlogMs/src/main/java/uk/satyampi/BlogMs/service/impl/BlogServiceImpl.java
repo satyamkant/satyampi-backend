@@ -47,6 +47,7 @@ public class BlogServiceImpl implements BlogService {
 
     @Override
     public String saveBlog(BlogDataDTO blogDataDTO) {
+        System.out.println(blogDataDTO);
         BlogPost blogPost = new BlogPost();
 
         blogPost.setTitle(blogDataDTO.getTitle());
@@ -69,6 +70,7 @@ public class BlogServiceImpl implements BlogService {
         }
 
         blogPost.setBlogContent(blogContent);
+
 
         blogRepository.save(blogPost);
         return "Blog Saved successfully";

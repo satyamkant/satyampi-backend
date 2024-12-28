@@ -3,6 +3,7 @@ package uk.satyampi.SecurityMs.controller;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -123,13 +124,10 @@ public class JwtController {
             return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 
         } catch (HttpClientErrorException | HttpServerErrorException e) {
-            // Specific exception handling for HTTP errors
             throw new SatyamPiLogicalException("Http exception",e);
         } catch (ResourceAccessException e) {
-            // Handle network or connection issues (e.g., service down)
             throw new SatyamPiLogicalException("Server not available",e);
         } catch (Exception e) {
-            // General exception handling
             throw new SatyamPiLogicalException("Internal server error",e);
         }
     }
@@ -154,7 +152,7 @@ public class JwtController {
     }
 
     @PostMapping("/blog/saveBlog")
-    public ResponseEntity<?> saveBlog(@RequestBody BlogDataDTO blogDataDTO) throws Exception {
+    public ResponseEntity<?> saveBlog(@Valid @RequestBody BlogDataDTO blogDataDTO) throws Exception {
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", "application/json");
 
@@ -169,13 +167,10 @@ public class JwtController {
             ).getBody();
             return new ResponseEntity<>(ResponseDto, HttpStatus.OK);
         } catch (HttpClientErrorException | HttpServerErrorException e) {
-            // Specific exception handling for HTTP errors
             throw new SatyamPiLogicalException("Http exception",e);
         } catch (ResourceAccessException e) {
-            // Handle network or connection issues (e.g., service down)
             throw new SatyamPiLogicalException("Server not available",e);
         } catch (Exception e) {
-            // General exception handling
             throw new SatyamPiLogicalException("Internal server error",e);
         }
     }
@@ -188,13 +183,10 @@ public class JwtController {
             ResponseDTO ResponseDto = restTemplate.getForObject(url, ResponseDTO.class);
             return new ResponseEntity<>(ResponseDto, HttpStatus.OK);
         } catch (HttpClientErrorException | HttpServerErrorException e) {
-            // Specific exception handling for HTTP errors
             throw new SatyamPiLogicalException("Http exception",e);
         } catch (ResourceAccessException e) {
-            // Handle network or connection issues (e.g., service down)
             throw new SatyamPiLogicalException("Server not available",e);
         } catch (Exception e) {
-            // General exception handling
             throw new SatyamPiLogicalException("Internal server error",e);
         }
 
