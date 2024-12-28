@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = 'satyamkant/blog-BlogMs:latest'
+        DOCKER_IMAGE = 'satyamkant/blog-blogms:latest'
     }
 
     stages {
