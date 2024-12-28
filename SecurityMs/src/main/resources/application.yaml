@@ -1,8 +1,8 @@
 spring:
   application:
-    name: SecurityMs-Dev
+    name: SecurityMs
   config:
-    import: consul://casalocal.com:8500/config/SecurityMs-Dev
+    import: consul://consul:8500/config/SecurityMs
   cloud:
     consul:
       config:

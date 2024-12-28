@@ -1,8 +1,8 @@
 spring:
   application:
-    name: BlogMs-Dev
+    name: BlogMs
   config:
-    import: consul://casalocal.com:8500/config/BlogMs-Dev # Specifies that configuration should be loaded from Consul
+    import: consul://consul:8500/config/BlogMs
   cloud:
     consul:
       config:
