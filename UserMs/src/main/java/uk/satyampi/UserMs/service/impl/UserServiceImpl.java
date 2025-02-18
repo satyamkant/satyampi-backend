@@ -62,6 +62,7 @@ public class UserServiceImpl implements UserService {
         response.setUpdatedAt(user.getUpdatedAt());
         response.setIsActive(user.getIsActive());
         response.setAccountLocked(user.getAccountLocked());
+        response.setUserId(user.getUserId());
 
         return response;
     }

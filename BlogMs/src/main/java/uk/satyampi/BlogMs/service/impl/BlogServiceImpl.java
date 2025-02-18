@@ -2,6 +2,7 @@ package uk.satyampi.BlogMs.service.impl;
 
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import uk.satyampi.BlogMs.dto.BlogDataDTO;
 import uk.satyampi.BlogMs.entity.BlogContent;
@@ -30,7 +31,7 @@ public class BlogServiceImpl implements BlogService {
         blogDataDTO.setDateUpdated(a.getDateUpdated());
         blogDataDTO.setContent(a.getBlogContent().getContent());
         blogDataDTO.setImageUrls(a.getBlogContent().getBlogImages().stream().map(BlogImage::getImagePath).toList());
-
+        blogDataDTO.setDescription(a.getDescription());
         return blogDataDTO;
     }
 
@@ -46,8 +47,7 @@ public class BlogServiceImpl implements BlogService {
     }
 
     @Override
-    public String saveBlog(BlogDataDTO blogDataDTO) {
-        System.out.println(blogDataDTO);
+    public String saveBlog(BlogDataDTO blogDataDTO) throws DataIntegrityViolationException {
         BlogPost blogPost = new BlogPost();
 
         blogPost.setTitle(blogDataDTO.getTitle());
@@ -55,6 +55,7 @@ public class BlogServiceImpl implements BlogService {
         blogPost.setSlug(blogDataDTO.getSlug());
         blogPost.setAuthorId(blogDataDTO.getAuthorId());
         blogPost.setPublishedStatus(false);
+        blogPost.setDescription(blogDataDTO.getDescription());
 
         BlogContent blogContent = new BlogContent();
         blogContent.setContent(blogDataDTO.getContent());
@@ -70,7 +71,6 @@ public class BlogServiceImpl implements BlogService {
         }
 
         blogPost.setBlogContent(blogContent);
-
 
         blogRepository.save(blogPost);
         return "Blog Saved successfully";

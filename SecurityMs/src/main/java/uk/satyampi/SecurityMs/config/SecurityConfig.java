@@ -16,7 +16,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -46,10 +45,18 @@ public class SecurityConfig {
         return http.csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
                 .authorizeHttpRequests(request ->request
-                        .requestMatchers("/security/register","/actuator/health","/security/login","/security/blog/getBlogByTitle/*")
+                        .requestMatchers(
+                                "/security/register",
+                                "/actuator/health",
+                                "/security/login",
+                                "/security/blog/getBlogByTitle/*",
+                                "/security/blog/getBlogsByType/*")
                         .permitAll()
-                        .requestMatchers(new AntPathRequestMatcher("/security/isAuthenticated","/security/blog/saveBlog"))
-                        .hasAnyRole("ADMIN","AUTHOR", "READER")
+                        .requestMatchers(
+                                "/security/isAuthenticated")
+                        .hasAnyRole(
+                                "ADMIN",
+                                "AUTHOR","READER")
                         .anyRequest()
                         .authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

@@ -14,6 +14,8 @@ public interface JwtService {
 
     String getUserNameFromJwtToken(String token);
 
+    Long getUserIdFromJwtToken(String token);
+
     boolean validateJwtToken(String authToken) throws SatyamPiLogicalException;
 
     String getClaimFromJwtToken(String token);

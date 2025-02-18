@@ -5,7 +5,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import uk.satyampi.BlogMs.dto.*;
+import uk.satyampi.BlogMs.enums.BlogType;
 import uk.satyampi.BlogMs.service.BlogService;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/blog")
@@ -21,6 +24,12 @@ public class BlogController {
     public ResponseEntity<?> getBlogBytitle(@RequestParam String title) {
         BlogDataDTO blogDataDTO = blogService.getBlogByTitle(title);
         return new ResponseEntity<>(new ResponseDTO("Successfully fetched blog " + title,HttpStatus.OK.toString(),null,blogDataDTO), HttpStatus.OK);
+    }
+
+    @GetMapping("/blogs/type")
+    public ResponseEntity<?> getBlogsBytype(@RequestParam String type) {
+        List<BlogDataDTO> blogDataDTOList = blogService.getAllBlogsOfType(Enum.valueOf(BlogType.class, type.toUpperCase()));
+        return new ResponseEntity<>(new ResponseDTO("Successfully fetched blogs " + type,HttpStatus.OK.toString(),null,blogDataDTOList), HttpStatus.OK);
     }
 
     @PostMapping("/saveblog")

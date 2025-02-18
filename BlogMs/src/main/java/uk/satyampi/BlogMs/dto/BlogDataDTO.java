@@ -22,5 +22,5 @@ public class BlogDataDTO implements Serializable {
     private String content;
     private List<String> imageUrls;
     private boolean publishedStatus;
-
+    private String description;
 }

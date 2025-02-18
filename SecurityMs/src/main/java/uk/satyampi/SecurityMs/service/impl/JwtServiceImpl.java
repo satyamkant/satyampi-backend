@@ -47,7 +47,9 @@ public class JwtServiceImpl implements JwtService {
         try {
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(userDto.getEmail(), userDto.getPasswordHash()));
             if (authentication.isAuthenticated()) {
+                userDto.setUserId(((UserDetails)authentication.getPrincipal()).getUserId());
                 userDto.setName(((UserDetails)authentication.getPrincipal()).getUserName());
+
                 userDto.setJwtToken(generateTokenFromUsername(userDto));
                 return userDto;
             }
@@ -57,7 +59,7 @@ public class JwtServiceImpl implements JwtService {
         }
         return null;
     }
-    
+
     @Override
     public String getJwtFromHeader(HttpServletRequest request) {
         Cookie[] cookies = request.getCookies();
@@ -76,6 +78,7 @@ public class JwtServiceImpl implements JwtService {
         return Jwts.builder()
                 .subject(userDto.getEmail())
                 .claim("userName", userDto.getName())
+                .claim("userId", userDto.getUserId())
                 .issuedAt(new Date())
                 .expiration(new Date((new Date()).getTime() + TimeUnit.HOURS.toMillis(EXPIRATION_TIME)))
                 .signWith(key())
@@ -99,6 +102,15 @@ public class JwtServiceImpl implements JwtService {
                 .build()
                 .parseSignedClaims(token)
                 .getPayload().get("userName", String.class);
+    }
+
+    @Override
+    public Long getUserIdFromJwtToken(String token){
+        return Jwts.parser()
+                .verifyWith((SecretKey) key())
+                .build()
+                .parseSignedClaims(token)
+                .getPayload().get("userId", Long.class);
     }
 
 

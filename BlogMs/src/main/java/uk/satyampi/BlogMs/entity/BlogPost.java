@@ -50,5 +50,8 @@ public class BlogPost {
     @OneToOne(mappedBy = "blogPost", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     private BlogContent blogContent;
 
+    @Column(name = "Description", nullable = false)
+    private String description;
+
     // Getters and Setters
 }

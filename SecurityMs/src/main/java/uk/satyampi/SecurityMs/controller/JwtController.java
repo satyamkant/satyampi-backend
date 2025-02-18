@@ -17,6 +17,7 @@ import uk.satyampi.SecurityMs.dto.*;
 import uk.satyampi.SecurityMs.exception.SatyamPiLogicalException;
 import uk.satyampi.SecurityMs.service.JwtService;
 
+import java.io.Console;
 import java.util.concurrent.TimeUnit;
 
 @RestController
@@ -28,14 +29,26 @@ public class JwtController {
     private final String USER_DB_URL_REGISTER_USER;
     private final String BLOG_DB_URL_SAVE_BLOG;
     private final String BLOG_DB_URL_GET_BLOG_BY_TITLE;
+    private final String BLOG_DB_BASE_URL;
     private final long EXPIRATION_TIME;
     private final String DOMAIN;
+
+    private void generateCookie(HttpServletResponse response, String jwtToken,int maxAge) {
+        Cookie cookie = new Cookie("jwtToken", jwtToken);
+        cookie.setHttpOnly(true);  // Make sure it's HttpOnly
+        cookie.setSecure(true);    // Make sure it's Secure (use in production)
+        cookie.setPath("/");       // The path where the cookie is valid
+        cookie.setMaxAge(maxAge); // Set cookie expiration time (in seconds)
+        cookie.setDomain(DOMAIN);
+        response.addCookie(cookie); // Add cookie to response
+    }
 
     @Autowired
     public JwtController(RestTemplate restTemplate, JwtService jwtService,
                          @Value("${USER_DB_URL_REGISTER_USER}") String userDbUrlRegisterUser,
                          @Value("${BLOG_DB_URL_SAVE_BLOG}") String blogDbUrlSaveBlog,
                          @Value("${BLOG_DB_URL_GET_BLOG_BY_TITLE}") String blogDbUrlGetBlogByTitle,
+                         @Value("${BLOG_DB_BASE_URL}") String blogDbBaseUrl,
                          @Value("${EXPIRATION_TIME}") long expirationTime,
                          @Value("${DOMAIN}") String domain) {
         this.restTemplate = restTemplate;
@@ -43,6 +56,7 @@ public class JwtController {
         USER_DB_URL_REGISTER_USER = userDbUrlRegisterUser;
         BLOG_DB_URL_SAVE_BLOG = blogDbUrlSaveBlog;
         BLOG_DB_URL_GET_BLOG_BY_TITLE = blogDbUrlGetBlogByTitle;
+        BLOG_DB_BASE_URL = blogDbBaseUrl;
         EXPIRATION_TIME = expirationTime;
         DOMAIN = domain;
     }
@@ -53,20 +67,14 @@ public class JwtController {
 
         // Create a cookie with the JWT token
         String jwtToken = jwtService.verifyUser(userDto).getJwtToken();
-        Cookie cookie = new Cookie("jwtToken", jwtToken);
-        cookie.setHttpOnly(true);  // Make sure it's HttpOnly
-        cookie.setSecure(true);    // Make sure it's Secure (use in production)
-        cookie.setPath("/");       // The path where the cookie is valid
-        cookie.setMaxAge((int)TimeUnit.HOURS.toSeconds(EXPIRATION_TIME)); // Set cookie expiration time (in seconds)
-        cookie.setDomain(DOMAIN);
-
-        response.addCookie(cookie); // Add cookie to response
-
+        generateCookie(response, jwtToken,(int)TimeUnit.HOURS.toSeconds(EXPIRATION_TIME));
 
 
         userDto.setPasswordHash(null);
         userDto.setJwtToken(null);
+
         userDto.setName(jwtService.getClaimFromJwtToken(jwtToken));
+        userDto.setUserId(jwtService.getUserIdFromJwtToken(jwtToken));
 
         ResponseDTO responseDTO = new ResponseDTO();
         responseDTO.setData(userDto);
@@ -79,16 +87,9 @@ public class JwtController {
     @GetMapping("/logout")
     public ResponseEntity<?> logout(HttpServletResponse response) {
         // Create a cookie with the JWT token
-        String jwtToken = "";
-        Cookie cookie = new Cookie("jwtToken", jwtToken);
-        cookie.setHttpOnly(true);  // Make sure it's HttpOnly
-        cookie.setSecure(true);    // Make sure it's Secure (use in production)
-        cookie.setPath("/");       // The path where the cookie is valid
-        cookie.setMaxAge(0); // Set cookie expiration time (in seconds)
-        cookie.setDomain(DOMAIN);
-        response.addCookie(cookie); // Add cookie to response
-        ResponseDTO responseDTO = new ResponseDTO();
+        generateCookie(response, "",0);
 
+        ResponseDTO responseDTO = new ResponseDTO();
         responseDTO.setMessage("Successfully Logged out");
         responseDTO.setStatus(HttpStatus.OK.toString());
 
@@ -124,7 +125,8 @@ public class JwtController {
             return new ResponseEntity<>(responseDTO, HttpStatus.OK);
 
         } catch (HttpClientErrorException | HttpServerErrorException e) {
-            throw new SatyamPiLogicalException("Http exception",e);
+            String responseBody = e.getResponseBodyAsString();
+            throw new SatyamPiLogicalException("Http exception", e, responseBody, e.getStatusCode());
         } catch (ResourceAccessException e) {
             throw new SatyamPiLogicalException("Server not available",e);
         } catch (Exception e) {
@@ -167,7 +169,8 @@ public class JwtController {
             ).getBody();
             return new ResponseEntity<>(ResponseDto, HttpStatus.OK);
         } catch (HttpClientErrorException | HttpServerErrorException e) {
-            throw new SatyamPiLogicalException("Http exception",e);
+            String responseBody = e.getResponseBodyAsString();
+            throw new SatyamPiLogicalException("Http exception", e, responseBody, e.getStatusCode());
         } catch (ResourceAccessException e) {
             throw new SatyamPiLogicalException("Server not available",e);
         } catch (Exception e) {
@@ -189,6 +192,24 @@ public class JwtController {
         } catch (Exception e) {
             throw new SatyamPiLogicalException("Internal server error",e);
         }
+
+    }
+
+    @GetMapping("/blog/getBlogsByType/{blogType}")
+    public ResponseEntity<?> getBlogsByType(@PathVariable String blogType) throws Exception {
+        String url = BLOG_DB_BASE_URL + "/blogs/type" + "?type=" + blogType;
+
+        try {
+            ResponseDTO ResponseDto = restTemplate.getForObject(url, ResponseDTO.class);
+            return new ResponseEntity<>(ResponseDto, HttpStatus.OK);
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            throw new SatyamPiLogicalException("Http exception",e);
+        } catch (ResourceAccessException e) {
+            throw new SatyamPiLogicalException("Server not available",e);
+        } catch (Exception e) {
+            throw new SatyamPiLogicalException("Internal server error",e);
+        }
+
 
     }
 

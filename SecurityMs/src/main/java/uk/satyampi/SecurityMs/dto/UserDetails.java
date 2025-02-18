@@ -18,6 +18,8 @@ public class UserDetails implements org.springframework.security.core.userdetail
       return userDto.getName();
     }
 
+    public Long getUserId() {return userDto.getUserId();}
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return Collections.singleton(new SimpleGrantedAuthority("ROLE_" + userDto.getRole().name()));
@@ -34,18 +36,8 @@ public class UserDetails implements org.springframework.security.core.userdetail
     }
 
     @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
     public boolean isAccountNonLocked() {
         return !userDto.getAccountLocked();
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
     }
 
     @Override

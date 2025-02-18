@@ -36,5 +36,8 @@ public class BlogDataDTO implements Serializable {
     private String content;
     private List<String> imageUrls;
     private boolean publishedStatus;
+    @NotNull(message = "content must not be null")
+    @NotBlank(message = "content must not be blank")
+    private String description;
 
 }
