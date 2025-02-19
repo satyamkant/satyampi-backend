@@ -1,6 +1,8 @@
 package uk.satyampi.BlogMs.service.impl;
 
 import jakarta.transaction.Transactional;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -18,11 +20,13 @@ import java.util.NoSuchElementException;
 @Service
 @Transactional
 public class BlogServiceImpl implements BlogService {
+    private final Logger logger = LogManager.getLogger(this.getClass());
     private final BlogRepository blogRepository;
 
     private BlogDataDTO getBlogDataDTO(BlogPost a) {
         BlogDataDTO blogDataDTO = new BlogDataDTO();
 
+        blogDataDTO.setBlogId(a.getBlogId());
         blogDataDTO.setTitle(a.getTitle());
         blogDataDTO.setBlogType(a.getBlogType());
         blogDataDTO.setSlug(a.getSlug());
@@ -78,26 +82,28 @@ public class BlogServiceImpl implements BlogService {
 
     @Override
     public String updateBlog(BlogDataDTO blogDataDTO) {
-        BlogPost blogPost = blogRepository.findByTitle(blogDataDTO.getTitle()).orElseThrow(()->new NoSuchElementException("No Blog Found to update"));
+        BlogPost blogPost = blogRepository.findById(blogDataDTO.getBlogId())
+                .orElseThrow(() -> new NoSuchElementException("No Blog Found to update"));
 
         blogPost.setBlogType(blogDataDTO.getBlogType());
-        blogPost.setTitle(blogDataDTO.getTitle());
-        blogPost.setSlug(blogDataDTO.getSlug());
-        blogPost.setAuthorId(blogDataDTO.getAuthorId());
-        blogPost.setPublishedStatus(false);
+        blogPost.setDescription(blogDataDTO.getDescription());
 
         BlogContent blogContent = blogPost.getBlogContent();
         blogContent.setContent(blogDataDTO.getContent());
 
         if (blogDataDTO.getImageUrls() != null) {
-            blogContent.setBlogImages(blogDataDTO.getImageUrls().stream().map(imageUrl -> {
+            blogContent.getBlogImages().clear();
+            List<BlogImage> blogImages = blogDataDTO.getImageUrls().stream().map(imageUrl -> {
                 BlogImage blogImage = new BlogImage();
                 blogImage.setImagePath(imageUrl);
                 blogImage.setBlogContent(blogContent);
                 return blogImage;
-            }).toList());
+            }).toList();
+            blogContent.getBlogImages().addAll(blogImages);
         }
 
+
+        blogPost.setBlogContent(blogContent);
         blogRepository.save(blogPost);
         return "Blog Updated successfully";
     }
@@ -105,6 +111,12 @@ public class BlogServiceImpl implements BlogService {
     @Override
     public List<BlogDataDTO> getAllBlogsByUser(Long id){
         List<BlogPost> blogPostList = blogRepository.findAllByAuthorId(id).orElseThrow(()->new NoSuchElementException("No Blog Found for User: "+ id.toString()));
+        return blogPostList.stream().map(this::getBlogDataDTO).toList();
+    }
+
+    @Override
+    public List<BlogDataDTO> getAllBLogs(){
+        List<BlogPost> blogPostList = blogRepository.findAll();
         return blogPostList.stream().map(this::getBlogDataDTO).toList();
     }
 

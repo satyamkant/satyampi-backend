@@ -213,4 +213,46 @@ public class JwtController {
 
     }
 
+    @GetMapping("/blog/getAllBlogs")
+    public ResponseEntity<?> getAllBlogs() throws Exception {
+        String url = BLOG_DB_BASE_URL + "/blogs/allblogs";
+
+        try {
+            ResponseDTO ResponseDto = restTemplate.getForObject(url, ResponseDTO.class);
+            return new ResponseEntity<>(ResponseDto, HttpStatus.OK);
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            throw new SatyamPiLogicalException("Http exception",e);
+        } catch (ResourceAccessException e) {
+            throw new SatyamPiLogicalException("Server not available",e);
+        } catch (Exception e) {
+            throw new SatyamPiLogicalException("Internal server error",e);
+        }
+    }
+
+    @PostMapping("/blog/updateblog")
+    public ResponseEntity<?> updateBlog(@Valid @RequestBody BlogDataDTO blogDataDTO) throws Exception {
+        String url = BLOG_DB_BASE_URL + "/blogs/updateblog";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Content-Type", "application/json");
+
+        HttpEntity<BlogDataDTO> requestEntity = new HttpEntity<>(blogDataDTO, headers);
+
+        try {
+            ResponseDTO ResponseDto = restTemplate.exchange(
+                    url,
+                    HttpMethod.POST,
+                    requestEntity,
+                    ResponseDTO.class
+            ).getBody();
+            return new ResponseEntity<>(ResponseDto, HttpStatus.OK);
+        } catch (HttpClientErrorException | HttpServerErrorException e) {
+            throw new SatyamPiLogicalException("Http exception",e);
+        } catch (ResourceAccessException e) {
+            throw new SatyamPiLogicalException("Server not available",e);
+        } catch (Exception e) {
+            throw new SatyamPiLogicalException("Internal server error",e);
+        }
+    }
+
 }

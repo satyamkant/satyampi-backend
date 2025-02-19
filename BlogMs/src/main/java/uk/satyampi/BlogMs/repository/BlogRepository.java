@@ -10,6 +10,7 @@ import java.util.Optional;
 
 @Repository
 public interface BlogRepository extends JpaRepository<BlogPost,Long> {
+    List<BlogPost> findAll();
     Optional<BlogPost> findByTitle(String title);
     Optional<List<BlogPost>> findAllByAuthorId(Long authorId);
     Optional<List<BlogPost>> findAllByBlogType(BlogType blogType);

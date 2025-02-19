@@ -15,5 +15,7 @@ public interface BlogService {
 
     List<BlogDataDTO> getAllBlogsByUser(Long id);
 
+    List<BlogDataDTO> getAllBLogs();
+
     List<BlogDataDTO> getAllBlogsOfType(BlogType type);
 }

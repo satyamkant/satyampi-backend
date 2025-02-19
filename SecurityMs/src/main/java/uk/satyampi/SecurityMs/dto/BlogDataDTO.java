@@ -18,7 +18,7 @@ import java.util.List;
 @NoArgsConstructor
 @Validated
 public class BlogDataDTO implements Serializable {
-
+    private Long blogId;
     @NotNull
     private BlogType blogType;
     @NotNull(message = "title must not be null")

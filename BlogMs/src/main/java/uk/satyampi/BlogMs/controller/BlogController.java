@@ -32,9 +32,21 @@ public class BlogController {
         return new ResponseEntity<>(new ResponseDTO("Successfully fetched blogs " + type,HttpStatus.OK.toString(),null,blogDataDTOList), HttpStatus.OK);
     }
 
+    @GetMapping("/blogs/allblogs")
+    public ResponseEntity<?> getAllBlogs() {
+        List<BlogDataDTO> blogDataDTOList = blogService.getAllBLogs();
+        return new ResponseEntity<>(new ResponseDTO("Successfully fetched blogs ",HttpStatus.OK.toString(),null,blogDataDTOList), HttpStatus.OK);
+    }
+
     @PostMapping("/saveblog")
     public ResponseEntity<?> saveBlog(@RequestBody BlogDataDTO blogDataDTO) {
         String message  = blogService.saveBlog(blogDataDTO);
+        return new ResponseEntity<>(new ResponseDTO(message,HttpStatus.OK.toString(),null,null), HttpStatus.OK);
+    }
+
+    @PostMapping("/blogs/updateblog")
+    public ResponseEntity<?> updateBlog(@RequestBody BlogDataDTO blogDataDTO) {
+        String message  = blogService.updateBlog(blogDataDTO);
         return new ResponseEntity<>(new ResponseDTO(message,HttpStatus.OK.toString(),null,null), HttpStatus.OK);
     }
 

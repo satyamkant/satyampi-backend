@@ -53,7 +53,9 @@ public class SecurityConfig {
                                 "/security/blog/getBlogsByType/*")
                         .permitAll()
                         .requestMatchers(
-                                "/security/isAuthenticated")
+                                "/security/isAuthenticated",
+                                "/security/blog/getAllBlogs",
+                                "/security/blog/updateblog")
                         .hasAnyRole(
                                 "ADMIN",
                                 "AUTHOR","READER")

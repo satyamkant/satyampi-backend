@@ -13,6 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BlogDataDTO implements Serializable {
+    private Long blogId;
     private BlogType blogType;
     private String title;
     private String slug;
