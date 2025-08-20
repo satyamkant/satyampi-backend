@@ -46,7 +46,7 @@ pipeline {
                     sh '''
                     docker stop BlogUserMs || true
                     docker rm BlogUserMs || true
-                    docker run -d --name BlogUserMs --network ProjectPi --restart always -p 2003:2003 $DOCKER_IMAGE
+                    docker run -d --name BlogUserMs --network SatyamPi.uk --restart always -p 2003:2003 $DOCKER_IMAGE
                     '''
                 }
             }
